@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.safefood.mappers.MemberMapper">
+
+	<insert id="regi" parameterType="Member">
+		INSERT INTO FOODMEMBER(ID, PWD,
+		NAME, ADDRESS, PHONE, ALLERGY, GENDER, SPECIAL,AGE,HEIGHT ,WEIGHT,
+		PRIMARYOP, QUIZ, ANSWER)
+		VALUES(#{id},#{pwd},#{name},#{address},#{phone},#{allergy},#{gender},#{special},#{age},
+		#{height}, #{weight}, #{primaryop}, #{quiz}, #{answer})
+	</insert>
+
+	<select id="duplicationCheck" parameterType="String"
+		resultType="java.lang.Integer">
+		SELECT COUNT(ID) FROM FOODMEMBER WHERE ID = #{id};
+	</select>
+
+	<select id="idCheck" parameterType="Member"
+		resultType="java.lang.Integer">
+		SELECT COUNT(ID) FROM FOODMEMBER WHERE
+		ID=#{id} AND
+		PWD=#{pwd}
+	</select>
+
+	<select id="idCheck_PWD" parameterType="Member"
+		resultType="java.lang.Integer">
+		SELECT COUNT(ID) FROM FOODMEMBER WHERE ID=#{id} AND
+		NAME=#{name} AND PHONE=#{phone}
+	</select>
+
+	<select id="login" parameterType="Member" resultType="Member">
+		SELECT ID,
+		NAME, ADDRESS, PHONE, ifnull(ALLERGY, ' ') ALLERGY, GENDER, PWD,
+		ifnull(SPECIAL, ' ') SPECIAL, AGE, AUTH, HEIGHT, WEIGHT,
+		ifnull(PRIMARYOP, ' ') PRIMARYOP,
+		QUIZ, ANSWER
+		FROM FOODMEMBER
+		WHERE
+		ID=#{id} AND PWD=#{pwd}
+	</select>
+	<!-- public Member myself(String id) { -->
+
+	<select id="myself" parameterType="String" resultType="Member">
+
+		SELECT id,
+		pwd,
+		name, address, phone, allergy, gender, special, age, height,
+		ifnull(PRIMARYOP, ' ') primaryop, weight, quiz, answer FROM
+		FOODMEMBER
+		WHERE ID = #{id}
+
+	</select>
+
+	<select id="findPW" parameterType="Member"
+		resultType="java.lang.Integer">
+		SELECT COUNT(ID) FROM FOODMEMBER WHERE ID=#{id} AND
+		ANSWER=#{answer};
+	</select>
+	<!-- bestCheck -->
+
+
+
+	<!-- public void deleteme(String id) { -->
+
+	<delete id="deleteme" parameterType="String">
+
+		DELETE FROM FOODMEMBER WHERE
+		ID = #{id}
+
+	</delete>
+
+
+
+	<!-- public void myselfUp(Member member) { -->
+
+	<update id="myselfUp" parameterType="Member">
+
+		UPDATE FOODMEMBER SET PWD =
+		#{pwd}, NAME = #{name}, ADDRESS = #{address}, PHONE = #{phone},
+		ALLERGY = #{allergy}, QUIZ=#{quiz}, ANSWER=#{answer},
+		GENDER =
+		#{gender}, SPECIAL = #{special}, AGE = #{age}, HEIGHT = #{height},
+		WEIGHT = #{weight}, PRIMARYOP = #{primaryop} WHERE ID = #{id}
+	</update>
+
+
+	<update id="tmpPw" parameterType="Member">
+		UPDATE FOODMEMBER SET PWD = #{pwd} WHERE ID=#{id};
+	</update>
+	<!-- public List<Member> findAllMembers() { -->
+
+
+	<select id="findAllMembers" resultType="Member">
+		SELECT
+		ID,
+		NAME, ADDRESS,
+		PHONE, ifnull(ALLERGY, ' ') ALLERGY, GENDER, ifnull(SPECIAL, ' ')
+		SPECIAL, AGE, HEIGHT, WEIGHT, ifnull(PRIMARYOP, ' ') PRIMARYOP FROM
+		FOODMEMBER WHERE auth != 1 ORDER BY
+		ID
+	</select>
+
+</mapper>
