@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.safefood.mappers.ReviewMapper">
+	<insert id="addReview" parameterType="Review">
+		insert into review(food_code, score, writer, contents, wdate)
+		values(#{food_code}, #{score}, #{writer}, #{contents}, now());
+	</insert>
+
+	<select id="getReviews" parameterType="pageDto"
+		resultType="Review">
+		SELECT R.REVIEW_SEQ review_seq, R.WRITER writer, R.FOOD_CODE food_code,
+		R.SCORE score, R.CONTENTS contents, DATE_FORMAT(R.WDATE, '%Y-%m-%d')
+		wdate, F.name food_name FROM REVIEW R, FOOD F WHERE R.FOOD_CODE =
+		#{code} and F.code = #{code} order by review_seq desc LIMIT #{number},
+		5;
+	</select>
+
+	<select id="getReviewsCount" parameterType="java.lang.Integer"
+		resultType="java.lang.Integer">
+		SELECT COUNT(REVIEW_SEQ) FROM REVIEW WHERE FOOD_CODE=#{code};
+	</select>
+
+	<select id="getReviewInfo" parameterType="java.lang.Integer"
+		resultType="reviewInfo">
+		select count(review_seq) count, format(avg(score), 1) avgScore from 
+		review group by food_code having food_code=#{code};
+	</select>
+
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from REVIEW where
+		REVIEW_SEQ=#{review_seq};
+	</delete>
+
+</mapper>

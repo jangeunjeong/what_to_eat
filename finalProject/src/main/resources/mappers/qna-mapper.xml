@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.safefood.mappers.QnaMapper">
+	<select id="getQnaList" resultType="Qna">
+		select seq, writer, title, date_format(wdate, '%Y-%m-%d') wdate, contents,pw,category from qna order by seq
+	</select>
+	
+	<insert id="addqna" parameterType="Qna">
+		insert into qna(writer, title, wdate, contents, pw, category) values(#{writer}, #{title}, now(), #{contents}, #{pw},#{category})
+	</insert>
+	
+	<select id="qnadetail"	parameterType="java.lang.Integer"
+	resultType="Qna">
+		select seq, writer, title, date_format(wdate, '%Y-%m-%d') wdate, contents, pw, category from qna where seq = #{seq}
+		
+	</select>
+	<update id="update"	parameterType="Qna">
+		update qna set title = #{title}, contents = #{contents},category = #{category} where seq = #{seq}
+	</update>
+	
+	<delete id="delete" parameterType="java.lang.Integer">
+		delete from qna where seq=#{seq}
+	</delete>
+	
+	<insert id="addcomment"	parameterType="QnaComment">
+		insert into qnacomment(writer, content, qna_seq) values(#{writer}, #{content}, #{qna_seq})
+	</insert>
+	
+	<select id="getCommentsList" resultType="QnaComment">
+		select seq, qna_seq, writer, content from qnacomment where qna_seq=#{seq} order by seq
+	</select>
+	
+	
+	<delete id="commentdelete"	parameterType="QnaComment">
+		delete from qnacomment where seq=#{seq} and qna_seq=#{qna_seq}
+	</delete>
+	
+</mapper>

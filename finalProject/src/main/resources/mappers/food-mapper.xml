@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.safefood.mappers.FoodMapper">
+
+	<select id="findAllFoods" parameterType="java.lang.Integer"
+		resultType="Food">
+		SELECT CODE, NAME, MAKER, MATERIAL, IMAGE, ifnull((select
+		count(review_seq) from review group by food_code having food_code =
+		F.code),0) reviews FROM FOOD F
+		ORDER BY CODE LIMIT #{number}, 5
+	</select>
+
+	<select id="cntTotFood" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM FOOD
+	</select>
+
+<select id="findbygroup" parameterType="String" resultType="Food">
+		SELECT CODE, NAME, IMAGE FROM FOOD WHERE FOODGROUP = #{foodgroup}
+	</select>
+	
+	<select id="checkCnt" parameterType="java.lang.Integer"
+		resultType="java.lang.Integer">
+		SELECT count(count) from searchcnt where code =#{num};
+	</select>
+
+	<select id="selectCnt" parameterType="java.lang.Integer"
+		resultType="java.lang.Integer">
+		SELECT count from searchcnt where code = #{num};
+	</select>
+
+	<insert id="insertCount" parameterType="java.lang.Integer">
+		INSERT INTO
+		SEARCHCNT(CODE, COUNT) VALUES(#{num}, 1);
+	</insert>
+
+	<update id="addCount" parameterType="Searchcnt">
+		UPDATE SEARCHCNT SET COUNT =
+		#{count}+1 WHERE CODE = #{code}
+	</update>
+
+	<select id="searchFoodnutri" parameterType="java.lang.Integer"
+		resultType="Food">
+		SELECT * FROM FOOD WHERE code = #{code}
+	</select>
+
+	<select id="searchFoodinfo" parameterType="SearchInfo"
+		resultType="Food">
+		SELECT CODE, NAME, MAKER, MATERIAL, IMAGE, ifnull((select
+		count(review_seq) from review group by food_code having food_code =
+		F.code),0) reviews FROM FOOD F WHERE
+		<if test="type == 'all'">
+			NAME LIKE CONCAT('%',#{keyword},'%') OR MAKER LIKE
+			CONCAT('%',#{keyword},'%') OR MATERIAL LIKE
+			CONCAT('%',#{keyword},'%')
+		</if>
+		<if test="type == 'name'">
+			NAME LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		<if test="type == 'maker'">
+			MAKER LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		<if test="type == 'material'">
+			MATERIAL LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		ORDER BY CODE LIMIT #{page}, 5;
+	</select>
+
+	<select id="CntSearchFoodinfo" parameterType="SearchInfo"
+		resultType="java.lang.Integer">
+		SELECT count(code) FROM FOOD WHERE
+		<if test="type == 'all'">
+			NAME LIKE CONCAT('%',#{keyword},'%') OR MAKER LIKE
+			CONCAT('%',#{keyword},'%') OR MATERIAL LIKE
+			CONCAT('%',#{keyword},'%')
+		</if>
+		<if test="type == 'name'">
+			NAME LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		<if test="type == 'maker'">
+			MAKER LIKE CONCAT('%',#{keyword},'%')
+		</if>
+		<if test="type == 'material'">
+			MATERIAL LIKE CONCAT('%',#{keyword},'%')
+		</if>
+	</select>
+
+	<select id="isEat" parameterType="Foodlog"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM FOODLOG WHERE FOOD_CODE = #{food_code}
+		AND FOODMEMBER_ID = #{foodmember_id} AND EATDATE = #{date}
+	</select>
+
+	<insert id="addNewFood" parameterType="Foodlog">
+		INSERT INTO
+		FOODLOG(FOOD_CODE, FOODMEMBER_ID, CALORIE, CAR, PRO, FAT,EATDATE)
+		VALUES(#{food_code},
+		#{foodmember_id}, (select nutr1 from food where
+		code=#{food_code}), (select nutr2 from food where code=#{food_code}
+		),(select nutr3 from food where code=#{food_code} ),(select nutr4 from
+		food where code=#{food_code} ),#{date} )
+	</insert>
+
+	<select id="checkFoodCount" parameterType="Foodlog"
+		resultType="java.lang.Integer">
+		SELECT COUNT FROM FOODLOG WHERE FOODMEMBER_ID =
+		#{foodmember_id} AND FOOD_CODE = #{food_code} AND EATDATE = #{date}
+	</select>
+
+	<update id="addFoodCount" parameterType="Foodlog">
+		UPDATE FOODLOG SET COUNT
+		= #{count} + 1 WHERE FOODMEMBER_ID = #{foodmember_id} AND FOOD_CODE =
+		#{food_code}
+	</update>
+
+	<select id="findFoodlogs" parameterType="Intake"
+		resultType="Foodlog">
+		SELECT F.CODE as food_code, L.FOODMEMBER_ID as
+		foodmember_id, F.NAME as name,
+		L.COUNT as count, (L.CALORIE*L.COUNT) as
+		calorie, (L.CAR*L.COUNT) as car, (L.PRO*L.COUNT) as pro,
+		(L.FAT*L.COUNT) as fat, L.EATDATE as date FROM FOOD F, FOODLOG
+		L WHERE
+		L.FOOD_CODE = F.CODE AND L.FOODMEMBER_ID = #{id} AND L.EATDATE =
+		#{date}
+	</select>
+
+	<select id="isEattenDay" parameterType="Intake"
+		resultType="java.lang.Integer">
+		SELECT COUNT(FOODMEMBER_ID) FROM FOODLOG WHERE
+		EATDATE=#{date} AND FOODMEMBER_ID =#{id};
+	</select>
+
+	<delete id="fooddelete" parameterType="Foodlog">
+		DELETE FROM FOODLOG WHERE FOODMEMBER_ID= #{foodmember_id} AND FOOD_CODE = #{food_code} AND EATDATE=#{date};
+	</delete>
+
+	<select id="best" resultType="BestFood">
+		SELECT F.CODE code, F.NAME name ,
+		F.MAKER maker, F.MATERIAL material, F.IMAGE image, S.COUNT count
+		FROM
+		FOOD F, SEARCHCNT S
+		WHERE F.CODE = S.CODE
+		ORDER BY S.COUNT DESC
+		LIMIT
+		0,5;
+	</select>
+
+	<select id="findBest" parameterType="java.lang.String"
+		resultType="Foodlog">
+		SELECT L.FOODMEMBER_ID as foodmember_id, F.NAME as name,
+		L.COUNT as count, (L.CALORIE*L.COUNT) as calorie, F.CODE food_code
+		FROM FOOD F, FOODLOG L WHERE L.FOOD_CODE = F.CODE AND L.FOODMEMBER_ID
+		=
+		#{id}
+		ORDER BY L.COUNT DESC
+		LIMIT 0,1;
+	</select>
+	<select id="bestCheck" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		SELECT COUNT(FOODMEMBER_ID) FROM FOODLOG WHERE
+		FOODMEMBER_ID=#{id};
+	</select>
+
+	<select id="count" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM FOOD
+	</select>
+
+	<select id="getfood" parameterType="java.lang.Integer"
+		resultType="Food">
+		SELECT CODE, NAME, IMAGE, FOODGROUP FROM FOOD WHERE CODE = #{tmp}
+	</select>
+
+
+</mapper>
