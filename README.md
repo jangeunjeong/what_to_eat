@@ -25,7 +25,7 @@
 
 ## :desktop_computer: 시스템 아키텍처
 
-![](C:\Users\82105\Desktop\wattoeat_techstack.png)
+![](https://user-images.githubusercontent.com/60774058/93716819-bce08980-fbac-11ea-910f-363ace07310b.png)
 
 
 
